@@ -6,6 +6,7 @@ import {
 
 export default function MemberList(props) {
     const { members } = props;
+
     return (
         <UnorderedList listStyleType='none'>
             {

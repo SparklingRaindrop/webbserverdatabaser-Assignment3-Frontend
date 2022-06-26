@@ -6,15 +6,19 @@ import {
     ModalOverlay,
     ModalContent,
     ModalHeader,
-    ModalFooter,
     ModalBody,
     ModalCloseButton,
-    Input
+    Input,
+    Checkbox
 } from '@chakra-ui/react';
 
 export default function CreateNewRoomPopUp(props) {
     const { isOpen, onClose, socket } = props;
-    const [input, setInput] = useState('');
+    const [isChecked, setIsChecked] = useState(false);
+    const [input, setInput] = useState({
+        name: '',
+        password: '',
+    });
     const toast = useToast();
 
     function handleCreateNewRoom() {
@@ -26,8 +30,13 @@ export default function CreateNewRoomPopUp(props) {
                     status: 'error',
                     duration: 5000,
                     isClosable: true,
-                })
+                });
             } else {
+                setInput({
+                    name: '',
+                    password: '',
+                });
+                setIsChecked(false);
                 onClose();
             }
         });
@@ -41,11 +50,31 @@ export default function CreateNewRoomPopUp(props) {
                 <ModalCloseButton />
                 <ModalBody>
                     <Input
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        id='userName'
+                        value={input.name}
+                        onChange={(e) => setInput(prev => ({
+                            ...prev,
+                            name: e.target.value,
+                        }))}
                         bg='white'
                         type='text' />
+                    <Checkbox
+                        colorScheme='green'
+                        checked={isChecked}
+                        onChange={() => setIsChecked(prev => !prev)}>
+                        set Password
+                    </Checkbox>
+                    {
+                        isChecked ?
+                            <Input
+                                value={input.password}
+                                onChange={(e) => setInput(prev => ({
+                                    ...prev,
+                                    password: e.target.value,
+                                }))}
+                                bg='white'
+                                type='text' /> :
+                            null
+                    }
                     <Button
                         mt={4}
                         colorScheme='green'

@@ -1,35 +1,44 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { messageState } from '../recoil/message/atom';
 import { userState } from '../recoil/user/atom';
-import { Box, VStack, Heading } from '@chakra-ui/react';
+import { Box, VStack, Heading, Flex } from '@chakra-ui/react';
 import SpeechBubble from './SpeechBubble';
+import { systemState } from '../recoil/system/atom';
+import TypingNotification from './TypingNotification';
 
 
 export default function ConversationWindow() {
     const [messages, setMessages] = useRecoilState(messageState);
     const { id, current_room } = useRecoilValue(userState);
-    console.log(messages);
+    const { typingBy } = useRecoilValue(systemState);
 
     return (
         <VStack>
             <Box bg='green.100' w='100%' p={2}>
                 <Heading>{current_room}</Heading>
             </Box>
-            <VStack
-                spacing={4}
+            <Flex
+                p={2}
+                direction='column'
+                gap={4}
+                w='100%'
             >
                 {
-                    messages ? messages.map(msg =>
-                        <SpeechBubble
-                            key={msg.timestamp + msg.content}
-                            message={msg.content}
-                            sender={msg.sender}
-                            timestamp={msg.timestamp} />
-                    ) :
+                    messages.length !== 0 ?
+                        messages.map((msg, index) =>
+                            <SpeechBubble
+                                key={msg.timestamp + index}
+                                msg={msg} />
+                        ) :
                         <div>No message</div>
                 }
-            </VStack>
+                {
+                    typingBy ?
+                        <TypingNotification name={typingBy.name} /> :
+                        null
+                }
+            </Flex>
         </VStack>
     )
 }

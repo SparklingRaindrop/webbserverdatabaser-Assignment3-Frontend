@@ -7,10 +7,12 @@ import { messageState } from './recoil/message/atom';
 import { Routes, Route } from 'react-router-dom';
 import Reception from '../pages/Reception';
 import Chat from '../pages/Chat';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, useToast } from '@chakra-ui/react';
 import { userState } from './recoil/user/atom';
 import { roomState } from './recoil/room/atom';
 import { useNavigate } from "react-router-dom";
+import { membersState } from './recoil/members/atom';
+import { systemState } from './recoil/system/atom';
 
 
 
@@ -113,12 +115,14 @@ import { useNavigate } from "react-router-dom";
 
 function App() {
     const [socket, setSocket] = useState(null);
-    const [currentRoom, setCurrentRoom] = useState(null);
-
+    const [userDetails, setUserState] = useRecoilState(userState);
     const setMessages = useSetRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
-    const [userDetails, setUserState] = useRecoilState(userState);
+    const setMemberList = useSetRecoilState(membersState);
+    const setSystemState = useSetRecoilState(systemState);
+
     const navigate = useNavigate();
+    const toast = useToast();
 
     useEffect(() => {
         const newSocket = io('http://localhost:5000', {
@@ -133,33 +137,75 @@ function App() {
 
         newSocket.on('connect_error', (error) => {
             console.log(error);
-            //setCurrentRoom('');
         });
 
         // data = {user, current}
-        newSocket.on('user_initialized', ({ user, roomList }) => {
-            console.log('user_initialized', user, roomList);
-            setUserState(user);
-            setRoomList(roomList);
+        newSocket.on('user_initialized', (data) => {
+            console.log('user_initialized', data);
+            setUserState(data.user);
+            setRoomList(data.roomList);
             navigate('/chat');
         });
 
         newSocket.on('new_msg', (data) => {
-            console.log('new message', data);
             setMessages(prev => [...prev, data]);
         });
 
         newSocket.on('update_room_list', (data) => {
-            console.log('New Room is created/ a room deleted', data.roomList);
-            setRoomList(data.roomList);
+            setRoomList(data);
         });
 
-        newSocket.on('new_client', (list) => {
-            console.log('new_client', list);
+        newSocket.on('new_client', (data) => {
+            setMemberList(data.users);
+        });
+
+        newSocket.on('room_deleted', (roomName) => {
+            toast({
+                title: `${roomName} was deleted.`,
+                status: 'info',
+                variant: 'left-accent',
+                position: 'bottom-left',
+                duration: 5000,
+                isClosable: true,
+            });
         });
 
         newSocket.on('room_new_member', (data) => {
-            console.log('new_client', data);
+            toast({
+                title: `${data.name} has joined ${data.current_room}`,
+                status: 'info',
+                variant: 'left-accent',
+                position: 'bottom-left',
+                duration: 5000,
+                isClosable: true,
+            });
+        });
+
+        newSocket.on('room_created', (roomName) => {
+            toast({
+                title: `A room "${roomName}" has created.`,
+                status: 'info',
+                variant: 'left-accent',
+                position: 'bottom-left',
+                duration: 5000,
+                isClosable: true,
+            });
+        });
+
+        newSocket.on('user_typing_start', (typingBy) => {
+            console.log('start detected', typingBy);
+            setSystemState(prev => ({
+                ...prev,
+                typingBy: typingBy,
+            }))
+        });
+
+        newSocket.on('user_typing_stop', () => {
+            console.log('stop detected');
+            setSystemState(prev => ({
+                ...prev,
+                typingBy: null,
+            }))
         });
 
         // Fired when the client is going to be disconnected (but hasn't left its rooms yet).
@@ -179,9 +225,6 @@ function App() {
                     <Route path='/chat' element={<Chat socket={socket} />} />
                 </Routes>
             </ChakraProvider>
-
-            {currentRoom && userName ? <h3>Hello {userName}</h3> : null}
-
         </div>
     )
 }

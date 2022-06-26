@@ -8,6 +8,7 @@ import {
     Button,
     Box,
 } from '@chakra-ui/react';
+import TypingNotification from '../src/components/TypingNotification';
 
 export default function Reception(props) {
     const { socket } = props;
@@ -36,8 +37,12 @@ function LoginField(props) {
         }
         socket.emit('ready', { userName: input }, (response) => {
             if (response.status !== 200) {
-                // TODO deal error
-                console.log(response);
+                toast({
+                    title: response.message,
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                })
                 return;
             }
         });
