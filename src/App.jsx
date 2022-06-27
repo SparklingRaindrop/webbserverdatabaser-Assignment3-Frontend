@@ -30,9 +30,20 @@ function App() {
             forceNew: true
         });
 
+        newSocket.on('reconnect', () => {
+            console.info('reconnected');
+            socket.emit('user-reconnected', userDetails.name);
+        });
+
         newSocket.on('connect', () => {
             console.info('Connected');
-            if (userDetails.id === null || userDetails.id !== newSocket.id) {
+            if (userDetails.id !== newSocket.id) {
+                setUserDetails(prev => ({
+                    ...prev,
+                    id: newSocket.id,
+                }));
+            }
+            if (userDetails.id === null) {
                 navigate('/');
                 resetUserDetails();
                 resetInboxes();
