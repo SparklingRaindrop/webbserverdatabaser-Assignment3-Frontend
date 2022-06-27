@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/user/atom';
 import { messageState } from '../recoil/message/atom';
-import { Button, HStack, Textarea, useToast } from '@chakra-ui/react';
+import { Button, HStack, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
+import Picker from 'emoji-picker-react';
+import { SmileyIcon } from './Icon';
 
 export default function MessageField(props) {
     const { socket } = props;
     const [userInput, setUserInput] = useState('');
+    const [isHidden, setIsHidden] = useState(true);
+
     const { id, name, current_room, active_tab, active_dm } = useRecoilValue(userState);
     const setInboxes = useSetRecoilState(messageState);
     const toast = useToast();
@@ -88,18 +92,40 @@ export default function MessageField(props) {
         });
     }
 
+    function onEmojiClick(event, emojiObject) {
+        setUserInput(prev => prev + emojiObject.emoji);
+    }
+
+    function handleOnClick() {
+        setIsHidden(prev => !prev)
+    }
+
     return (
-        <HStack justifyItems='end'>
-            <Textarea
-                type='text'
-                value={userInput}
-                onChange={(event) => setUserInput(event.target.value)}
-                onFocus={handleTypingStart}
-                onBlur={handleTypingEnd}
-                placeholder='Message' />
-            <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
-                Send
-            </Button>
-        </HStack>
+        <VStack justifyItems='end' position='relative' width='100%'>
+            <Picker
+                onEmojiClick={onEmojiClick}
+                pickerStyle={{
+                    maxWidth: '30rem',
+                    display: isHidden ? 'none' : 'block',
+                    position: 'absolute',
+                    transform: 'translateY(-100%)'
+                }} />
+
+            <IconButton icon={<SmileyIcon />} onClick={handleOnClick} />
+
+            <HStack>
+                <Textarea
+                    type='text'
+                    value={userInput}
+                    onChange={(event) => setUserInput(event.target.value)}
+                    onFocus={handleTypingStart}
+                    onBlur={handleTypingEnd}
+                    placeholder='Message' />
+                <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
+                    Send
+                </Button>
+            </HStack>
+        </VStack>
+
     )
 }

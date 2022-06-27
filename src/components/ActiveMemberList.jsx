@@ -17,6 +17,7 @@ export default function ActiveMemberList({ members }) {
                 <>
                     <Heading>
                         <AccordionButton
+                            as='div'
                             bg='green.300'>
                             <Box flex='1' textAlign='left'>
                                 Active Users ({members.length})
