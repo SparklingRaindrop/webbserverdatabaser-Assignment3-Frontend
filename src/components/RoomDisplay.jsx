@@ -32,7 +32,12 @@ export default function RoomDisplay(props) {
                         password={password} />
                 })}
             </Accordion>
-            <Button leftIcon={<AddIcon />} colorScheme='green' variant='solid' onClick={onOpen}>
+            <Button
+                flexShrink={1}
+                leftIcon={<AddIcon />}
+                colorScheme='green'
+                variant='solid'
+                onClick={onOpen}>
                 Create new room
             </Button>
             <CreateNewRoomPopUp isOpen={isOpen} onClose={onClose} socket={socket} />

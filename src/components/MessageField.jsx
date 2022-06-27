@@ -8,7 +8,7 @@ export default function MessageField(props) {
     const { socket } = props;
     const [userInput, setUserInput] = useState('');
     const { id, name, current_room, active_tab, active_dm } = useRecoilValue(userState);
-    const setMessages = useSetRecoilState(messageState);
+    const setInboxes = useSetRecoilState(messageState);
     const toast = useToast();
 
     function handleSubmitMessage() {
@@ -44,8 +44,9 @@ export default function MessageField(props) {
                 /*
                     message = {current_room: [], id: [], id: []}
                 */
-                setMessages(prev => {
+                setInboxes(prev => {
                     // prev.hasOwnProperty(active_dm[active_tab]) has to be always true for DM
+                    // When user click on the DM button in MemberList, it adds to active_dm
                     if (active_dm && prev.hasOwnProperty(active_dm[active_tab])) {
                         const receiverId = active_dm[active_tab];
                         return {
@@ -61,18 +62,6 @@ export default function MessageField(props) {
                             current_room: [...prev.current_room, outgoingMessage]
                         }
                     }
-                    /* 
-                                        // First time sending a message to this user
-                                        return {
-                                            ...prev,
-                                            [receiverId]: [{
-                                                ...outgoingMessage,
-                                                room_name: outgoingMessage.room_name ? current_room : undefined,
-                                                sender: id,
-                                                sender_name: name,
-                                                timestamp: new Date().toString(),
-                                            }]
-                                        } */
                 });
                 setUserInput('');
             }
@@ -81,11 +70,12 @@ export default function MessageField(props) {
     }
 
     function handleTypingStart() {
-        socket.emit('typing_start', {
-            room_name: current_room,
-            receiver: undefined, // TODO
-        }, (response) => {
-            console.log(response);
+        const target = active_tab !== current_room ?
+            { receiver: active_dm[active_tab] } :
+            { room_name: current_room };
+
+        socket.emit('typing_start', target, (response) => {
+            //console.log(response);
         });
     }
 

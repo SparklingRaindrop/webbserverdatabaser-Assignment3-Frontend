@@ -20,11 +20,8 @@ export default function Chat(props) {
 
     return (
         <Grid templateRows='repeat(4, 1fr)' templateColumns='repeat(4, 1fr)' w='100vw' h='100vh'>
-            <GridItem gridRow='1 / span 3' gridColumn='1 / span 1' overflowY='scroll'>
+            <GridItem gridRow='1 / span 4' gridColumn='1 / span 1' overflowY='scroll'>
                 <RoomDisplay socket={socket} w='100%' bg='green.400' />
-            </GridItem>
-            <GridItem gridRow='4 / span 1' gridColumn='1 / span 1' w='100%' >
-                Test
             </GridItem>
             <GridItem
                 w='100%'

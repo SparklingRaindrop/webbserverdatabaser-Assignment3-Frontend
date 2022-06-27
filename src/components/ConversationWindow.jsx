@@ -5,11 +5,13 @@ import { Box, VStack, Heading, Flex } from '@chakra-ui/react';
 import SpeechBubble from './SpeechBubble';
 import { systemState } from '../recoil/system/atom';
 import TypingNotification from './TypingNotification';
+import { userState } from '../recoil/user/atom';
 
 export default function ConversationWindow(props) {
     const { receiverName, receiverId } = props;
     const inboxes = useRecoilValue(messageState);
-    const { typingBy } = useRecoilValue(systemState);
+    const { typingNotification } = useRecoilValue(systemState);
+    const { active_tab } = useRecoilValue(userState);
 
     const targetInbox = receiverId ? inboxes[receiverId] : inboxes.current_room;
     if (!targetInbox) return <div>Loading</div>
@@ -36,23 +38,13 @@ export default function ConversationWindow(props) {
                         <div>No message</div>
                 }
                 {
-                    typingBy ?
-                        <TypingNotification name={typingBy.name} /> :
+                    typingNotification &&
+                        (typingNotification.typingBy.name === active_tab ||
+                            typingNotification.room_name === active_tab) ?
+                        <TypingNotification name={typingNotification.typingBy.name} /> :
                         null
                 }
             </Flex>
         </VStack>
     )
 }
-
-{/* <div>
-                <input type='text'
-                    placeholder='Message'
-                    value={directMessage}
-                    onChange={(event) => setDirectMessage(event.target.value)} />
-                <input type='text'
-                    placeholder='Message to'
-                    value={receiver}
-                    onChange={(event) => setReceiver(event.target.value)} />
-                <button onClick={handleDirectMessage}>Send</button>
-            </div> */}
