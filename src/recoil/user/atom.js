@@ -6,5 +6,7 @@ export const userState = atom({
         userName: null,
         id: null,
         current_room: null,
+        active_tab: null,
+        active_dm: null,
     },
 });

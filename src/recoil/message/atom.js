@@ -2,5 +2,7 @@ import {atom} from 'recoil';
 
 export const messageState = atom({
     key: 'messageState',
-    default: [],
+    default: {
+        current_room: [],
+    },
 });

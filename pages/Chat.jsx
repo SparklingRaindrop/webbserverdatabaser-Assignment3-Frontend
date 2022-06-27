@@ -6,6 +6,7 @@ import MessageField from '../src/components/MessageField';
 import { useRecoilValue } from 'recoil';
 import { messageState } from '../src/recoil/message/atom';
 import { systemState } from '../src/recoil/system/atom';
+import ConversationTabs from '../src/components/ConversationTabs';
 
 export default function Chat(props) {
     const { socket } = props;
@@ -32,7 +33,7 @@ export default function Chat(props) {
                 gridColumn='2 / span 3'
                 className='conversations'
                 overflowY='scroll'>
-                <ConversationWindow />
+                <ConversationTabs />
             </GridItem>
             <GridItem gridRow='4 / span 1' gridColumn='2 / span 3' w='100%'>
                 <MessageField socket={socket} />

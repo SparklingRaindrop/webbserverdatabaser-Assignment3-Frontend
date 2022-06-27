@@ -6,7 +6,7 @@ import { userState } from '../recoil/user/atom';
 export default function SpeechBubble({ msg }) {
     const { content, sender, timestamp, sender_name } = msg;
     const { id, userName } = useRecoilValue(userState);
-    console.log(msg);
+
     return (
         <Flex
             gap={2}

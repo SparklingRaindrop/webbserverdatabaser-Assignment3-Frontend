@@ -36,7 +36,7 @@ export default function ListGroup(props) {
     const [action, setAction] = useState(null);
     const toast = useToast();
     const [user, updateUserState] = useRecoilState(userState);
-    const updateMessageState = useSetRecoilState(messageState);
+    const setInboxes = useSetRecoilState(messageState);
 
     function handleDeleteRoom(event) {
         event.stopPropagation();
@@ -95,8 +95,12 @@ export default function ListGroup(props) {
                 updateUserState(prev => ({
                     ...prev,
                     current_room: roomDetails.name,
+                    active_tab: roomDetails.name, // TODO
                 }));
-                updateMessageState([]);
+                setInboxes(prev => ({
+                    ...prev,
+                    current_room: []
+                }));
             }
         });
     }

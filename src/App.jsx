@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import logo from './logo.svg'
 import './App.css'
 import { io } from 'socket.io-client';
-import { useSetRecoilState, useRecoilState } from 'recoil';
+import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil';
 import { messageState } from './recoil/message/atom';
 import { Routes, Route } from 'react-router-dom';
 import Reception from '../pages/Reception';
@@ -115,11 +114,12 @@ import { systemState } from './recoil/system/atom';
 
 function App() {
     const [socket, setSocket] = useState(null);
-    const [userDetails, setUserState] = useRecoilState(userState);
-    const setMessages = useSetRecoilState(messageState);
+    const [userDetails, setUserDetails] = useRecoilState(userState);
+    const [inboxes, setInboxes] = useRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
     const setMemberList = useSetRecoilState(membersState);
     const setSystemState = useSetRecoilState(systemState);
+    const resetUserDetails = useResetRecoilState(userState);
 
     const navigate = useNavigate();
     const toast = useToast();
@@ -136,19 +136,80 @@ function App() {
         });
 
         newSocket.on('connect_error', (error) => {
-            console.log(error);
+            console.log('connect_error', error);
         });
 
         // data = {user, current}
         newSocket.on('user_initialized', (data) => {
-            console.log('user_initialized', data);
-            setUserState(data.user);
+            setUserDetails(prev => ({
+                ...prev,
+                name: data.user.name,
+                id: data.user.id,
+                current_room: data.user.current_room,
+                active_tab: data.user.current_room,
+            }));
             setRoomList(data.roomList);
             navigate('/chat');
         });
 
-        newSocket.on('new_msg', (data) => {
-            setMessages(prev => [...prev, data]);
+        /* incomingMessage = {
+            content: string
+            receiver: obj or undefined 
+                {id: string, name: string, current_room_id: 1, current_room: string}
+            room_name: string or undefined
+            sender: "sender_id" string
+            sender_name: string
+            timestamp: string
+        }
+        */
+        /*
+            message = {current_room: [], id:[], id:[]}
+            message[0] is reserved for a room chat.
+        */
+        newSocket.on('new_msg', (incomingMessage) => {
+            const senderId = incomingMessage.sender; // user this user is talking to
+            const receiverData = incomingMessage.receiver; // this user
+            // when message obj has a receiver then it's DM.
+            if (receiverData) {
+
+                // First message from this sender
+                if (!inboxes.hasOwnProperty(senderId)) {
+                    // Add sender to active_dm
+                    setUserDetails(prev => ({
+                        ...prev,
+                        active_dm: {
+                            ...prev.active_dm,
+                            [incomingMessage.sender_name]: senderId
+                        },
+                    }));
+                    setInboxes(prev => {
+                        const newInbox = [incomingMessage];
+                        return {
+                            ...prev,
+                            [senderId]: newInbox,
+                        }
+                    });
+                } else {
+                    // Not the first message. must be append to the existing inbox
+                    setInboxes(prev => {
+                        const newInbox = [...prev[senderId], incomingMessage];
+                        return {
+                            ...prev,
+                            [senderId]: newInbox,
+                        }
+                    });
+                }
+            } else {
+                // If it's group message
+                setInboxes(prev => {
+                    const newInbox = [...prev.current_room, incomingMessage];
+                    return {
+                        ...prev,
+                        current_room: newInbox
+                    }
+                });
+            }
+
         });
 
         newSocket.on('update_room_list', (data) => {
@@ -193,7 +254,6 @@ function App() {
         });
 
         newSocket.on('user_typing_start', (typingBy) => {
-            console.log('start detected', typingBy);
             setSystemState(prev => ({
                 ...prev,
                 typingBy: typingBy,
@@ -201,7 +261,6 @@ function App() {
         });
 
         newSocket.on('user_typing_stop', () => {
-            console.log('stop detected');
             setSystemState(prev => ({
                 ...prev,
                 typingBy: null,
@@ -214,7 +273,10 @@ function App() {
         });
 
         setSocket(newSocket);
-        return () => newSocket.close();
+        return () => {
+            newSocket.close();
+            resetUserDetails();
+        };
     }, []);
 
     return (

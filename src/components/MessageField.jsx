@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/user/atom';
 import { messageState } from '../recoil/message/atom';
 import { Button, HStack, Textarea, useToast } from '@chakra-ui/react';
@@ -7,15 +7,30 @@ import { Button, HStack, Textarea, useToast } from '@chakra-ui/react';
 export default function MessageField(props) {
     const { socket } = props;
     const [userInput, setUserInput] = useState('');
-    const { id, name, current_room } = useRecoilValue(userState);
+    const { id, name, current_room, active_tab, active_dm } = useRecoilValue(userState);
     const setMessages = useSetRecoilState(messageState);
     const toast = useToast();
 
     function handleSubmitMessage() {
-        socket.emit('send_msg', {
-            message: userInput,
-            receiver: undefined // TODO
-        }, (response) => {
+        const outgoingMessage = {
+            content: userInput,
+            sender: id,
+            sender_name: name,
+            timestamp: new Date().toString(),
+        };
+
+        /* 
+            active_dm: { name: id }
+        */
+        if (active_tab !== current_room) {
+            outgoingMessage.receiver = active_dm[active_tab];
+        }
+
+        /*
+            { content: string, receiver: string }
+            If receiver is not provided, it'll sent to the room.
+        */
+        socket.emit('send_msg', outgoingMessage, (response) => {
             if (response.status !== 200) {
                 toast({
                     title: 'Could not send the message',
@@ -26,16 +41,42 @@ export default function MessageField(props) {
                 })
                 return;
             } else {
-                setMessages(prev => [...prev, {
-                    content: userInput,
-                    room_name: current_room,
-                    receiver: undefined, // TODO
-                    sender: id,
-                    sender_name: name,
-                    timestamp: new Date().toString(),
-                }]);
+                /*
+                    message = {current_room: [], id: [], id: []}
+                */
+                setMessages(prev => {
+                    // prev.hasOwnProperty(active_dm[active_tab]) has to be always true for DM
+                    if (active_dm && prev.hasOwnProperty(active_dm[active_tab])) {
+                        const receiverId = active_dm[active_tab];
+                        return {
+                            ...prev,
+                            [receiverId]: [...prev[receiverId], {
+                                ...outgoingMessage,
+                                room_name: undefined,
+                            }]
+                        }
+                    } else {
+                        return {
+                            ...prev,
+                            current_room: [...prev.current_room, outgoingMessage]
+                        }
+                    }
+                    /* 
+                                        // First time sending a message to this user
+                                        return {
+                                            ...prev,
+                                            [receiverId]: [{
+                                                ...outgoingMessage,
+                                                room_name: outgoingMessage.room_name ? current_room : undefined,
+                                                sender: id,
+                                                sender_name: name,
+                                                timestamp: new Date().toString(),
+                                            }]
+                                        } */
+                });
+                setUserInput('');
             }
-            setUserInput('');
+
         });
     }
 

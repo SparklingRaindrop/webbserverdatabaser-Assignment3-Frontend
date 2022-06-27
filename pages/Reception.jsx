@@ -64,7 +64,6 @@ function LoginField(props) {
                 mt={4}
                 colorScheme='teal'
                 onClick={handleSendUserName}
-            /* isLoading={props.isSubmitting} */
             >
                 Enter
             </Button>
