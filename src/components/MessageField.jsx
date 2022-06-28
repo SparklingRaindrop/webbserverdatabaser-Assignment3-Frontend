@@ -34,7 +34,7 @@ export default function MessageField(props) {
             { content: string, receiver: string }
             If receiver is not provided, it'll sent to the room.
         */
-        socket.emit('send_msg', outgoingMessage, (response) => {
+        socket.emit('msg:send', outgoingMessage, (response) => {
             if (response.status !== 200) {
                 toast({
                     title: 'Could not send the message',
@@ -78,17 +78,22 @@ export default function MessageField(props) {
             { receiver: active_dm[active_tab] } :
             { room_name: current_room };
 
-        socket.emit('typing_start', target, (response) => {
-            //console.log(response);
+        socket.emit('user:typing_start', target, (response) => {
+            if (response.status !== 200) {
+                console.log(response);
+            }
         });
     }
 
     function handleTypingEnd() {
-        socket.emit('typing_stop', {
-            room_name: current_room,
-            receiver: undefined, // TODO
-        }, (response) => {
-            console.log(response);
+        const target = active_tab !== current_room ?
+            { receiver: active_dm[active_tab] } :
+            { room_name: current_room };
+
+        socket.emit('user:typing_stop', target, (response) => {
+            if (response.status !== 200) {
+                console.log(response);
+            }
         });
     }
 

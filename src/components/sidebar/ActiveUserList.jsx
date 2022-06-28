@@ -3,6 +3,7 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
+    Flex,
     Heading,
     IconButton,
 } from '@chakra-ui/react';
@@ -10,34 +11,42 @@ import { PlusSquareIcon, MinusIcon } from '@chakra-ui/icons'
 import React from 'react';
 import MemberList from './MemberList';
 
-export default function ActiveMemberList({ members }) {
+export default function ActiveUserList(props) {
+    const { members, handleSwitchTab } = props;
     return (
-        <AccordionItem border={0}>
+        <AccordionItem w='90%' m='auto' border={0}>
             {({ isExpanded }) => (
                 <>
-                    <Heading>
-                        <AccordionButton
-                            as='div'
-                            bg='green.300'>
-                            <Box flex='1' textAlign='left'>
+                    <Heading
+                        overflow='hidden'
+                        bg='green.300'>
+                        <AccordionButton paddingRight={0}>
+                            <Box
+                                flex='1'
+                                w='50%'
+                                textAlign='left'>
                                 Active Users ({members.length})
                             </Box>
                             {isExpanded ?
                                 <IconButton
                                     variant='ghost'
                                     colorScheme='black'
+                                    as='div'
                                     icon={<MinusIcon />}
                                 />
                                 :
                                 <IconButton
                                     variant='ghost'
                                     colorScheme='black'
+                                    as='div'
                                     icon={<PlusSquareIcon />}
                                 />}
                         </AccordionButton>
                     </Heading>
                     <AccordionPanel pb={4} bg='green.200'>
-                        <MemberList members={members} />
+                        <MemberList
+                            members={members}
+                            handleSwitchTab={handleSwitchTab} />
                     </AccordionPanel>
                 </>
             )}

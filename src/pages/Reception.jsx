@@ -1,4 +1,3 @@
-import { Center } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import {
     useToast,
@@ -7,8 +6,8 @@ import {
     Input,
     Button,
     Box,
+    Center,
 } from '@chakra-ui/react';
-import TypingNotification from '../src/components/TypingNotification';
 
 export default function Reception(props) {
     const { socket } = props;
@@ -35,7 +34,7 @@ function LoginField(props) {
             })
             return;
         }
-        socket.emit('ready', { userName: input }, (response) => {
+        socket.emit('user:ready', { userName: input }, (response) => {
             if (response.status !== 200) {
                 toast({
                     title: response.message,

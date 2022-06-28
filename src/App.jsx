@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useSetRecoilState, useRecoilState, useResetRecoilState } from 'recoil';
-import { messageState } from './recoil/message/atom';
-import { Routes, Route } from 'react-router-dom';
-import Reception from '../pages/Reception';
-import Chat from '../pages/Chat';
-import { ChakraProvider, useToast } from '@chakra-ui/react';
+import { useNavigate, Routes, Route } from "react-router-dom";
+
 import { userState } from './recoil/user/atom';
 import { roomState } from './recoil/room/atom';
-import { useNavigate } from "react-router-dom";
+import { messageState } from './recoil/message/atom';
 import { membersState } from './recoil/members/atom';
 import { systemState } from './recoil/system/atom';
 
+import { ChakraProvider, useToast } from '@chakra-ui/react';
+import Reception from './pages/Reception';
+import Chat from './pages/Chat';
+
 function App() {
     const [socket, setSocket] = useState(null);
+
     const [userDetails, setUserDetails] = useRecoilState(userState);
-    const [inboxes, setInboxes] = useRecoilState(messageState);
+    // inboxes = {current_room: [], id:[], id:[]}
+    const setInboxes = useSetRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
     const setMemberList = useSetRecoilState(membersState);
     const setSystemState = useSetRecoilState(systemState);
@@ -27,8 +30,10 @@ function App() {
 
     useEffect(() => {
         const newSocket = io('http://localhost:5000', {
-            forceNew: true
+            forceNew: true,
         });
+
+        /// Connection ///
 
         newSocket.on('reconnect', () => {
             console.info('reconnected');
@@ -54,8 +59,15 @@ function App() {
             console.log('connect_error', error);
         });
 
-        // data = {user, current}
-        newSocket.on('user_initialized', (data) => {
+        // Fired when the client is going to be disconnected (but hasn't left its rooms yet).
+        newSocket.on("disconnecting", (reason) => {
+            console.log(newSocket.rooms);
+        });
+
+        /// User ///
+
+        /* data = {user, current} */
+        newSocket.on('user:initialized', (data) => {
             setUserDetails(prev => ({
                 ...prev,
                 name: data.user.name,
@@ -67,26 +79,50 @@ function App() {
             navigate('/chat');
         });
 
-        /* incomingMessage = {
-            content: string
-            receiver: obj or undefined 
-                {id: string, name: string, current_room_id: 1, current_room: string}
-            room_name: string or undefined
-            sender: "sender_id" string
-            sender_name: string
-            timestamp: string
-        }
-        */
+        newSocket.on('user:new_client', (data) => {
+            setMemberList(data.users);
+        });
+
         /*
-            message = {current_room: [], id:[], id:[]}
-            message[0] is reserved for a room chat.
+            data = {
+                typingBy: user data,
+                receiver: id or undefined,
+                room_name: string or undefined,
+            }
         */
-        newSocket.on('new_msg', (incomingMessage) => {
+        newSocket.on('user:typing_started', (data) => {
+            setSystemState(prev => ({
+                ...prev,
+                typingNotification: data,
+            }))
+        });
+
+        newSocket.on('user:typing_stopped', () => {
+            setSystemState(prev => ({
+                ...prev,
+                typingNotification: null,
+            }))
+        });
+
+        /// Message ///
+
+        /*
+            incomingMessage = {
+                content: string
+                receiver: obj or undefined 
+                    {id: string, name: string, current_room_id: 1, current_room: string}
+                room_name: string or undefined
+                sender: "sender_id" string
+                sender_name: string
+                timestamp: string
+            }
+        */
+        newSocket.on('msg:new', (incomingMessage) => {
             const senderId = incomingMessage.sender; // user this user is talking to
             const receiverData = incomingMessage.receiver; // this user
 
-            console.log(incomingMessage);
             if (
+                receiverData &&
                 userDetails.active_dm &&
                 !userDetails.active_dm.hasOwnProperty(incomingMessage.sender_name)
             ) {
@@ -133,15 +169,13 @@ function App() {
             });
         });
 
-        newSocket.on('update_room_list', (data) => {
+        /// Room ///
+
+        newSocket.on('room:new_list', (data) => {
             setRoomList(data);
         });
 
-        newSocket.on('new_client', (data) => {
-            setMemberList(data.users);
-        });
-
-        newSocket.on('room_deleted', (roomName) => {
+        newSocket.on('room:deleted', (roomName) => {
             toast({
                 title: `${roomName} was deleted.`,
                 status: 'info',
@@ -152,7 +186,7 @@ function App() {
             });
         });
 
-        newSocket.on('room_new_member', (data) => {
+        newSocket.on('room:new_member', (data) => {
             toast({
                 title: `${data.name} has joined ${data.current_room}`,
                 status: 'info',
@@ -163,7 +197,7 @@ function App() {
             });
         });
 
-        newSocket.on('room_created', (roomName) => {
+        newSocket.on('room:created', (roomName) => {
             toast({
                 title: `A room "${roomName}" has created.`,
                 status: 'info',
@@ -173,31 +207,6 @@ function App() {
                 isClosable: true,
             });
         });
-        /*
-            data = {
-                typingBy: user data,
-                receiver: id or undefined,
-                room_name: string or undefined,
-            }
-        */
-        newSocket.on('user_typing_start', (data) => {
-            setSystemState(prev => ({
-                ...prev,
-                typingNotification: data,
-            }))
-        });
-
-        newSocket.on('user_typing_stop', () => {
-            setSystemState(prev => ({
-                ...prev,
-                typingNotification: null,
-            }))
-        });
-
-        // Fired when the client is going to be disconnected (but hasn't left its rooms yet).
-        newSocket.on("disconnecting", (reason) => {
-            console.log(newSocket.rooms);
-        });
 
         setSocket(newSocket);
         return () => {
@@ -205,7 +214,6 @@ function App() {
         };
     }, []);
 
-    console.log('inboxes: ', inboxes);
     return (
         <div className="App">
             <ChakraProvider>
@@ -218,22 +226,4 @@ function App() {
     )
 }
 
-export default App
-
-
-/* 
-
-            {
-                !currentRoom ?
-                    { <LoginField
-                        userName={input}
-                        handleSendUserName={handleSendUserName}
-                        handleInput={handleInput} /> } :
-                        <Chat
-                        socket={socket}
-                        roomList={roomList}
-                        userName={userName}
-                        currentRoom={currentRoom}
-                        updateCurrentRoom={updateCurrentRoom} />
-            }
-*/
+export default App;

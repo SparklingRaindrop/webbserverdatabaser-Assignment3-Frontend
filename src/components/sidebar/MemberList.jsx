@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    Box,
     HStack,
     IconButton,
     ListItem,
@@ -8,11 +7,11 @@ import {
 } from '@chakra-ui/react';
 import { ChatIcon } from '@chakra-ui/icons'
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { userState } from '../recoil/user/atom';
-import { messageState } from '../recoil/message/atom';
+import { userState } from '../../recoil/user/atom';
+import { messageState } from '../../recoil/message/atom';
 
 export default function MemberList(props) {
-    const { members } = props;
+    const { members, handleSwitchTab } = props;
 
     const [user, setUser] = useRecoilState(userState);
     const setMessages = useSetRecoilState(messageState);
@@ -34,6 +33,7 @@ export default function MemberList(props) {
                 }
             }
         });
+        handleSwitchTab(); // index
     }
 
     return (

@@ -22,7 +22,7 @@ export default function CreateNewRoomPopUp(props) {
     const toast = useToast();
 
     function handleCreateNewRoom() {
-        socket.emit('create_room', input, (response) => {
+        socket.emit('room:create', input, (response) => {
             if (response.status !== 200) {
                 toast({
                     title: 'Could not create a room',
