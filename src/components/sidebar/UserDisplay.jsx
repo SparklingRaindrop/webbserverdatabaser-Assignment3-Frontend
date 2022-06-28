@@ -43,7 +43,8 @@ export default function UserDisplay(props) {
                             members={members}
                             name={roomName}
                             socket={socket}
-                            password={password} />
+                            password={password}
+                            handleSwitchTab={handleSwitchTab} />
                     })
                 }
             </Accordion>

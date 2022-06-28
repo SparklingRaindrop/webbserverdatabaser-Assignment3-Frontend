@@ -1,9 +1,10 @@
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
+
 import { userState } from '../../recoil/user/atom';
 import { messageState } from '../../recoil/message/atom';
+
 import { Button, Flex, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
-import Picker from 'emoji-picker-react';
 import { SmileyIcon } from '../Icon';
 
 export default function MessageField(props) {
@@ -109,16 +110,16 @@ export default function MessageField(props) {
 
     return (
         <VStack justifyItems='end' position='relative'>
-            <Picker
+            {/*             <Picker
                 onEmojiClick={onEmojiClick}
                 pickerStyle={{
                     maxWidth: '30rem',
                     display: isHidden ? 'none' : 'block',
                     position: 'absolute',
                     transform: 'translateY(-100%)'
-                }} />
+                }} /> */}
 
-            <IconButton icon={<SmileyIcon />} onClick={handleOnClick} />
+            {/* <IconButton icon={<SmileyIcon />} onClick={handleOnClick} /> */}
 
             <Flex
                 width={['100%', '70%']}
@@ -132,6 +133,7 @@ export default function MessageField(props) {
                     onFocus={handleTypingStart}
                     onBlur={handleTypingEnd}
                     placeholder='Message' />
+
                 <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
                     Send
                 </Button>

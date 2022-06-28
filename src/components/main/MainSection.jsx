@@ -8,6 +8,7 @@ export default function MainSection(props) {
     return (
         <GridItem
             w='100%'
+            minH='5rem'
             pt='2rem'
             gridRow='1 / span 3'
             gridColumn={['2 / span 2', '2 / span 3']}>

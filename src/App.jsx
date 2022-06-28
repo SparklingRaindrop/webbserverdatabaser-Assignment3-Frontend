@@ -18,7 +18,7 @@ function App() {
 
     const [userDetails, setUserDetails] = useRecoilState(userState);
     // inboxes = {current_room: [], id:[], id:[]}
-    const setInboxes = useSetRecoilState(messageState);
+    const [inboxes, setInboxes] = useRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
     const setMemberList = useSetRecoilState(membersState);
     const setSystemState = useSetRecoilState(systemState);
@@ -37,7 +37,13 @@ function App() {
 
         newSocket.on('reconnect', () => {
             console.info('reconnected');
-            socket.emit('user-reconnected', userDetails.name);
+            socket.emit('user:reconnect', userDetails.name);
+        }, (response) => {
+            if (response.status !== 200) {
+                navigate('/');
+                resetUserDetails();
+                resetInboxes();
+            }
         });
 
         newSocket.on('connect', () => {
@@ -117,26 +123,29 @@ function App() {
                 timestamp: string
             }
         */
+
         newSocket.on('msg:new', (incomingMessage) => {
             const senderId = incomingMessage.sender; // user this user is talking to
             const receiverData = incomingMessage.receiver; // this user
 
-            if (
-                receiverData &&
-                //userDetails.active_dm.length &&
-                !userDetails.active_dm.includes(messageWith =>
-                    messageWith.hasOwnProperty(incomingMessage[sender_name])
-                )
-            ) {
-                // Add sender to active_dm
-                setUserDetails(prev => ({
-                    ...prev,
-                    active_dm: [
-                        ...prev.active_dm,
-                        { [incomingMessage[sender_name]]: senderId }
-                    ],
-                }));
-            }
+            // Add sender to active_dm
+            setUserDetails(prev => {
+                if (
+                    receiverData &&
+                    //userDetails.active_dm.length &&
+                    prev.active_dm.filter(data => (
+                        data.hasOwnProperty(incomingMessage.sender_name))).length === 0
+                ) {
+                    return {
+                        ...prev,
+                        active_dm: [
+                            ...prev.active_dm,
+                            { [incomingMessage.sender_name]: senderId }
+                        ],
+                    }
+                }
+                return prev;
+            });
 
             setInboxes(prev => {
                 // when message obj has a receiver then it's DM.
@@ -215,7 +224,7 @@ function App() {
             newSocket.close();
         };
     }, []);
-
+    console.log(userDetails.active_dm)
     return (
         <div className="App">
             <ChakraProvider>

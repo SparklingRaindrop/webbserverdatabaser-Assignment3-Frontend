@@ -4,6 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/user/atom';
 
 import { Avatar, Box, Grid, GridItem, Text } from '@chakra-ui/react';
+import Emoji from "react-emoji-render";
 
 export default function SpeechBubble({ msg }) {
     const { content, sender, timestamp, sender_name } = msg;
@@ -41,7 +42,7 @@ export default function SpeechBubble({ msg }) {
                 alignSelf={sender === id ? 'flex-end' : 'flex-start'}
                 borderRadius='lg'
                 bg={sender === id ? 'green.100' : 'green.300'}>
-                {content}
+                <Emoji text={content} />
             </Text>
             <GridItem
                 gridColumn='2 / span 2'

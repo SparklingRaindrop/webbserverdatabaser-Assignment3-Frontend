@@ -33,11 +33,11 @@ export default function MemberList(props) {
                 }
             }
         });
+        handleSwitchTab(user.active_dm.length + 1);
         setUser(prev => ({
             ...prev,
             active_tab: receiver.name,
         }))
-        handleSwitchTab(user.active_dm.length + 1);
     }
 
     return (

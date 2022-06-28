@@ -69,66 +69,8 @@ function PasswordPopUp(props) {
     )
 }
 
-function ActionButtons(props) {
-    const {
-        name,
-        roomDetails,
-        isExpanded,
-        onOpen,
-        handleAction,
-        handleDeleteRoom,
-        handleEnterRoom,
-        password,
-    } = props;
-    const user = useRecoilValue(userState);
-
-    return (
-        <Flex
-            direction='row'
-            alignItems='center'>
-            {
-                user.current_room === name ?
-                    null :
-                    <IconButton
-                        variant='ghost'
-                        colorScheme='black'
-                        aria-label='Enter room'
-                        justifySelf='flex-end'
-                        onClick={(event) => {
-                            handleAction('Enter');
-                            if (password) {
-                                onOpen();
-                                return;
-                            }
-                            handleEnterRoom(event);
-                        }}
-                        icon={<EnterRoomIcon />}
-                    />
-            }
-            {
-                roomDetails.name === 'lobby' ?
-                    null :
-                    <IconButton
-                        variant='ghost'
-                        colorScheme='black'
-                        aria-label='Delete room'
-                        onClick={(event) => {
-                            handleAction('Delete');
-                            if (password) {
-                                onOpen();
-                                return;
-                            }
-                            handleDeleteRoom(event);
-                        }}
-                        icon={<DeleteIcon />}
-                    />
-            }
-        </Flex>
-    );
-}
-
 export default function RoomMemberList(props) {
-    const { name, members, socket, password } = props;
+    const { name, members, socket, password, handleSwitchTab } = props;
 
     const [roomDetails, setRoomDetails] = useState({
         name: name,
@@ -302,7 +244,9 @@ export default function RoomMemberList(props) {
                             </Flex>
                         </Heading>
                         <AccordionPanel pb={4} bg='green.200'>
-                            <MemberList members={members} />
+                            <MemberList
+                                members={members}
+                                handleSwitchTab={handleSwitchTab} />
                         </AccordionPanel>
                     </>
                 )}
