@@ -123,16 +123,18 @@ function App() {
 
             if (
                 receiverData &&
-                userDetails.active_dm &&
-                !userDetails.active_dm.hasOwnProperty(incomingMessage.sender_name)
+                //userDetails.active_dm.length &&
+                !userDetails.active_dm.includes(messageWith =>
+                    messageWith.hasOwnProperty(incomingMessage[sender_name])
+                )
             ) {
                 // Add sender to active_dm
                 setUserDetails(prev => ({
                     ...prev,
-                    active_dm: {
+                    active_dm: [
                         ...prev.active_dm,
-                        [incomingMessage.sender_name]: senderId
-                    },
+                        { [incomingMessage[sender_name]]: senderId }
+                    ],
                 }));
             }
 

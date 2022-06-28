@@ -19,10 +19,10 @@ export default function MemberList(props) {
     function handleDM(receiver) {
         setUser(prev => ({
             ...prev,
-            active_dm: {
+            active_dm: [
                 ...prev.active_dm,
-                [receiver.name]: receiver.id
-            },
+                { [receiver.name]: receiver.id }
+            ],
         }));
         setMessages(prev => {
             // When first time to talk to this user, create message box
@@ -33,7 +33,11 @@ export default function MemberList(props) {
                 }
             }
         });
-        handleSwitchTab(); // index
+        setUser(prev => ({
+            ...prev,
+            active_tab: receiver.name,
+        }))
+        handleSwitchTab(user.active_dm.length + 1);
     }
 
     return (

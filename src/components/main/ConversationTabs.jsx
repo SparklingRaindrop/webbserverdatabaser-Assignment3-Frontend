@@ -26,32 +26,38 @@ function TabButton(props) {
 }
 
 export default function ConversationTabs(props) {
-    const { tabIndex } = props;
+    const { tabIndex, handleSwitchTab } = props;
 
     const user = useRecoilValue(userState);
 
     return (
         <Tabs
             h='100%'
-            isLazy
-            variant='enclosed-colored'
-            size='lg'
-            display='grid'
             gridTemplateRows='auto 1fr'
             gridTemplateColumns='1fr'
+            isLazy
+            variant='enclosed'
+            size='md'
+            display='grid'
             colorScheme='green'
             onChange={(index) => handleSwitchTab(index)}
             index={tabIndex}>
             <GridItem>
-                <TabList>
-                    <TabButton label={user.current_room} />
+                <TabList
+                    pl='2rem' gap='1rem'>
+                    <TabButton
+                        label={user.current_room} />
                     {
-                        user.active_dm && Object.keys(user.active_dm).map(receiverName => (
-                            <TabButton
-                                key={receiverName}
-                                label={receiverName}
-                            />
-                        ))
+                        user.active_dm &&
+                        user.active_dm.map(receiverData => {
+                            const receiverName = Object.keys(receiverData)[0];
+                            return (
+                                <TabButton
+                                    key={receiverName}
+                                    label={receiverName}
+                                />
+                            )
+                        })
                     }
                 </TabList>
             </GridItem>
@@ -67,13 +73,20 @@ export default function ConversationTabs(props) {
                             receiverName={user.current_room} />
                     </TabPanel>
                     {
-                        user.active_dm && Object.keys(user.active_dm).map(receiverName => (
-                            <TabPanel key={receiverName}>
-                                <ConversationWindow
-                                    receiverName={receiverName}
-                                    receiverId={user.active_dm[receiverName]} />
-                            </TabPanel>
-                        ))
+                        user.active_dm &&
+                        user.active_dm.map(receiverData => {
+                            // receiverData = { name: id }
+                            const receiverName = Object.keys(receiverData)[0];
+                            return (
+                                <TabPanel key={receiverName}>
+                                    <ConversationWindow
+                                        receiverName={receiverName}
+                                        receiverId={user.active_dm.find(receiverData =>
+                                            receiverData.hasOwnProperty(receiverName))[receiverName]
+                                        } />
+                                </TabPanel>
+                            );
+                        })
                     }
                 </TabPanels>
             </GridItem>

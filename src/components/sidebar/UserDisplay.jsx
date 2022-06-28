@@ -17,7 +17,7 @@ import CreateNewRoomPopUp from './CreateNewRoomPopUp';
 import ActiveUserList from './ActiveUserList';
 
 export default function UserDisplay(props) {
-    const { socket } = props;
+    const { socket, handleSwitchTab } = props;
 
     const roomList = useRecoilValue(roomState);
     const memberList = useRecoilValue(membersState);

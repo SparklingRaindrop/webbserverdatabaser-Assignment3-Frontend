@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid } from '@chakra-ui/react';
 import { useRecoilValue } from 'recoil';
 import { messageState } from '../recoil/message/atom';
@@ -21,7 +21,7 @@ export default function Chat(props) {
     }, [messages, typingBy]);
 
     function handleSwitchTab(index) {
-        setTabIndex(index)
+        setTabIndex(index);
     }
 
     return (
@@ -39,7 +39,6 @@ export default function Chat(props) {
                 handleSwitchTab={handleSwitchTab} />
             <UserInputSection
                 socket={socket} />
-
         </Grid >
     );
 }

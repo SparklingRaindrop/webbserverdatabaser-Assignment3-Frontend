@@ -1,10 +1,10 @@
 import React, { forwardRef, useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userState } from '../recoil/user/atom';
-import { messageState } from '../recoil/message/atom';
-import { Button, HStack, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
+import { userState } from '../../recoil/user/atom';
+import { messageState } from '../../recoil/message/atom';
+import { Button, Flex, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
 import Picker from 'emoji-picker-react';
-import { SmileyIcon } from './Icon';
+import { SmileyIcon } from '../Icon';
 
 export default function MessageField(props) {
     const { socket } = props;
@@ -24,10 +24,11 @@ export default function MessageField(props) {
         };
 
         /* 
-            active_dm: { name: id }
+            active_dm: [{ name: id }, { name: id }]
         */
         if (active_tab !== current_room) {
-            outgoingMessage.receiver = active_dm[active_tab];
+            const receiverData = active_dm.find(data => data.hasOwnProperty(active_tab));
+            outgoingMessage.receiver = receiverData[active_tab];
         }
 
         /*
@@ -49,10 +50,11 @@ export default function MessageField(props) {
                     message = {current_room: [], id: [], id: []}
                 */
                 setInboxes(prev => {
-                    // prev.hasOwnProperty(active_dm[active_tab]) has to be always true for DM
-                    // When user click on the DM button in MemberList, it adds to active_dm
-                    if (active_dm && prev.hasOwnProperty(active_dm[active_tab])) {
-                        const receiverId = active_dm[active_tab];
+                    // When user click on the DM button in MemberList,
+                    // the user will be added to active_dm
+                    const receiverData = active_dm.find(data => data.hasOwnProperty(active_tab));
+                    if (active_dm && receiverData) {
+                        const receiverId = receiverData[active_tab];
                         return {
                             ...prev,
                             [receiverId]: [...prev[receiverId], {
@@ -75,7 +77,7 @@ export default function MessageField(props) {
 
     function handleTypingStart() {
         const target = active_tab !== current_room ?
-            { receiver: active_dm[active_tab] } :
+            { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
 
         socket.emit('user:typing_start', target, (response) => {
@@ -87,7 +89,7 @@ export default function MessageField(props) {
 
     function handleTypingEnd() {
         const target = active_tab !== current_room ?
-            { receiver: active_dm[active_tab] } :
+            { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
 
         socket.emit('user:typing_stop', target, (response) => {
@@ -106,7 +108,7 @@ export default function MessageField(props) {
     }
 
     return (
-        <VStack justifyItems='end' position='relative' width='100%'>
+        <VStack justifyItems='end' position='relative'>
             <Picker
                 onEmojiClick={onEmojiClick}
                 pickerStyle={{
@@ -118,7 +120,11 @@ export default function MessageField(props) {
 
             <IconButton icon={<SmileyIcon />} onClick={handleOnClick} />
 
-            <HStack>
+            <Flex
+                width={['100%', '70%']}
+                direction='row'
+                alignItems='flex-end'
+                gap='1rem'>
                 <Textarea
                     type='text'
                     value={userInput}
@@ -129,7 +135,7 @@ export default function MessageField(props) {
                 <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
                     Send
                 </Button>
-            </HStack>
+            </Flex>
         </VStack>
 
     )
