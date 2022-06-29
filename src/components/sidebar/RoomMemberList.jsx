@@ -95,6 +95,7 @@ export default function RoomMemberList(props) {
                 toast({
                     title: 'Could not delete the room.',
                     description: response.message,
+                    position: 'bottom-left',
                     status: 'error',
                     duration: 5000,
                     isClosable: true,
@@ -109,6 +110,7 @@ export default function RoomMemberList(props) {
                 }
                 toast({
                     title: 'Successfully deleted',
+                    position: 'bottom-left',
                     status: 'success',
                     duration: 5000,
                     isClosable: true,

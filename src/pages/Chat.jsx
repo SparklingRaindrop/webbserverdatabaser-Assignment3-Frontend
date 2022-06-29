@@ -16,12 +16,11 @@ export default function Chat(props) {
     const [tabIndex, setTabIndex] = useState(0);
 
     const messages = useRecoilValue(messageState);
-    const { typingBy } = useRecoilValue(systemState);
-
+    const { typingNotification } = useRecoilValue(systemState);
     useEffect(() => {
         const conversations = document.querySelector('.conversations');
         conversations.scrollTop = conversations.scrollHeight;
-    }, [messages, typingBy]);
+    }, [typingNotification, messages]);
 
     function handleSwitchTab(index) {
         setTabIndex(index);
@@ -33,7 +32,7 @@ export default function Chat(props) {
             h='100vh'
             overflow='hidden'
             templateRows={'repeat(4, 1fr)'}
-            templateColumns={['repeat(3, 1fr)', 'repeat(4, 1fr)']}>
+            templateColumns={['minmax(250px, 1fr) repeat(2, 1fr)', 'minmax(250px, 1fr) repeat(3, 1fr)']}>
             <Sidebar
                 socket={socket}
                 handleSwitchTab={handleSwitchTab} />

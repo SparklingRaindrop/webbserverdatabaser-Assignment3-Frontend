@@ -5,7 +5,7 @@ import { Box, Flex } from '@chakra-ui/react';
 export default function TypingNotification(props) {
     const { name } = props;
     return (
-        <Flex direction='row' alignItems='center'>
+        <Flex direction='row' alignItems='center' h='3rem'>
             {name} is writing <Box><ThreeDotsAnimation /></Box>
         </Flex>
     )

@@ -16,7 +16,7 @@ import Chat from './pages/Chat';
 function App() {
     const [socket, setSocket] = useState(null);
 
-    const [userDetails, setUserDetails] = useRecoilState(userState);
+    const setUserDetails = useSetRecoilState(userState);
     // inboxes = {current_room: [], id:[], id:[]}
     const setInboxes = useSetRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
@@ -65,16 +65,36 @@ function App() {
         newSocket.on('user:new_client', (data) => {
             setMemberList(data.users);
         });
+
         /* 
          data = {
             allMembers,
-            roomList
+            roomList,
+            user // The user who left the chat
          }
         */
         newSocket.on('user:left_chat', (data) => {
-            console.log('left_chat', data);
-            //setMemberList(data.users);
-            //setRoomList(data.roomList);
+            setMemberList(data.allMembers);
+            setRoomList(data.roomList);
+            toast({
+                title: `${data.user.name} has left the chat.`,
+                status: 'info',
+                variant: 'left-accent',
+                position: 'bottom-left',
+                duration: 5000,
+                isClosable: true,
+            });
+        });
+
+        newSocket.on('user:left_chat_room', (data) => {
+            toast({
+                title: `${data.user.name} has left the chat.`,
+                status: 'info',
+                variant: 'left-accent',
+                position: 'bottom-left',
+                duration: 5000,
+                isClosable: true,
+            });
         });
 
         /*
@@ -224,7 +244,6 @@ function App() {
         };
     }, []);
 
-    console.log(userDetails);
     return (
         <div className="App">
             <ChakraProvider>

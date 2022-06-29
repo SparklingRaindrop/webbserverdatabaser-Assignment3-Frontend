@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 
 import { userState } from '../../recoil/user/atom';
@@ -16,6 +16,20 @@ export default function MessageField(props) {
     const { id, name, current_room, active_tab, active_dm } = useRecoilValue(userState);
     const setInboxes = useSetRecoilState(messageState);
     const toast = useToast();
+
+    useEffect(() => {
+        function keyDownHandler(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleSubmitMessage();
+            }
+        };
+        document.addEventListener('keydown', keyDownHandler);
+
+        return () => {
+            document.removeEventListener('keydown', keyDownHandler);
+        };
+    }, []);
 
     function handleSubmitMessage() {
         const outgoingMessage = {
@@ -78,7 +92,6 @@ export default function MessageField(props) {
     }
 
     function handleTypingStart() {
-        console.log(active_tab !== current_room);
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
