@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { toArray } from 'react-emoji-render';
+
 
 import { userState } from '../../recoil/user/atom';
 import { messageState } from '../../recoil/message/atom';
 
-import { Button, Flex, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
 import { SmileyIcon } from '../Icon';
-import { toArray } from 'react-emoji-render';
+import { Button, Flex, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
+import EmojiPicker from './EmojiPicker';
 
 export default function MessageField(props) {
     const { socket } = props;
@@ -120,13 +122,10 @@ export default function MessageField(props) {
         setUserInput(parsed);
     }
 
-    function onEmojiClick(event, emojiObject) {
-        setUserInput(prev => prev + emojiObject.emoji);
+    function onEmojiClick(emoji) {
+        setUserInput(prev => prev + emoji);
     }
 
-    function handleOnClick() {
-        setIsHidden(prev => !prev)
-    }
     function handleKeyDown() {
         handleTypingStart();
     }
@@ -139,17 +138,18 @@ export default function MessageField(props) {
     };
 
     return (
-        <VStack justifyItems='end' position='relative'>
-            {/*             <Picker
+        <VStack
+            justifyItems='end'
+            position='relative'>
+            {!isHidden && <EmojiPicker
                 onEmojiClick={onEmojiClick}
-                pickerStyle={{
-                    maxWidth: '30rem',
-                    display: isHidden ? 'none' : 'block',
-                    position: 'absolute',
-                    transform: 'translateY(-100%)'
-                }} /> */}
+                setIsHidden={setIsHidden}
+            />}
 
-            {/* <IconButton icon={<SmileyIcon />} onClick={handleOnClick} /> */}
+            <IconButton
+                className='emojiPickerButton'
+                icon={<SmileyIcon />}
+                onClick={() => setIsHidden(prev => !prev)} />
 
             <Flex
                 width={['100%', '70%']}
