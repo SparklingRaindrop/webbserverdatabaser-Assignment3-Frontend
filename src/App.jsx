@@ -29,36 +29,22 @@ function App() {
     const toast = useToast();
 
     useEffect(() => {
+        navigate('/');
+    }, [socket]);
+
+    useEffect(() => {
         const newSocket = io('http://localhost:5000', {
             forceNew: true,
         });
 
         /// Connection ///
 
-        newSocket.on('connect', () => {
-            console.info('Connected', newSocket.id);
-
-            setUserDetails(prev => {
-                if (prev.name === null) {
-                    toast({
-                        title: 'Please set your nickname again.',
-                        description: 'This occurred due to disconnection.',
-                        status: 'error',
-                        position: 'bottom-left',
-                        duration: 5000,
-                        isClosable: true,
-                    });
-                    navigate('/');
-                }
-            });
-        });
-
         newSocket.on('connect_error', (error) => {
             console.log(error);
         });
 
         newSocket.on("disconnect", (reason) => {
-            console.log(reason);
+            navigate('/');
         });
 
         /// User ///
@@ -78,6 +64,17 @@ function App() {
 
         newSocket.on('user:new_client', (data) => {
             setMemberList(data.users);
+        });
+        /* 
+         data = {
+            allMembers,
+            roomList
+         }
+        */
+        newSocket.on('user:left_chat', (data) => {
+            console.log('left_chat', data);
+            //setMemberList(data.users);
+            //setRoomList(data.roomList);
         });
 
         /*
@@ -226,6 +223,7 @@ function App() {
             newSocket.close();
         };
     }, []);
+
     console.log(userDetails);
     return (
         <div className="App">

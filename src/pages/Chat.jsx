@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { messageState } from '../recoil/message/atom';
 import { systemState } from '../recoil/system/atom';
 
-import { Grid } from '@chakra-ui/react';
+import { Grid, Spinner } from '@chakra-ui/react';
 
 import Sidebar from '../components/sidebar/Sidebar';
 import MainSection from '../components/main/MainSection';

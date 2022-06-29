@@ -6,7 +6,6 @@ import { GridItem, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/re
 import { userState } from '../../recoil/user/atom';
 import ConversationWindow from './ConversationWindow';
 
-
 function TabButton(props) {
     const { label } = props;
     const setUser = useSetRecoilState(userState);
@@ -47,7 +46,7 @@ export default function ConversationTabs(props) {
                 <TabList
                     pl='2rem' gap='1rem'>
                     <TabButton
-                        label={user.current_room} />
+                        label={current_room} />
                     {
                         active_dm &&
                         active_dm.map(receiverData => {
