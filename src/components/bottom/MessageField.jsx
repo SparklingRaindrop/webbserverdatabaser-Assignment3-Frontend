@@ -18,18 +18,11 @@ export default function MessageField(props) {
     const toast = useToast();
 
     useEffect(() => {
-        function keyDownHandler(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                handleSubmitMessage();
-            }
-        };
-        document.addEventListener('keydown', keyDownHandler);
-
-        return () => {
-            document.removeEventListener('keydown', keyDownHandler);
-        };
-    }, []);
+        const typingTimer = setTimeout(() => {
+            handleTypingEnd();
+        }, 2000);
+        return () => clearTimeout(typingTimer)
+    }, [userInput])
 
     function handleSubmitMessage() {
         const outgoingMessage = {
@@ -134,6 +127,16 @@ export default function MessageField(props) {
     function handleOnClick() {
         setIsHidden(prev => !prev)
     }
+    function handleKeyDown() {
+        handleTypingStart();
+    }
+
+    function handleKeyUp(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleSubmitMessage();
+        }
+    };
 
     return (
         <VStack justifyItems='end' position='relative'>
@@ -157,8 +160,8 @@ export default function MessageField(props) {
                     type='text'
                     value={userInput}
                     onChange={handleOnChange}
-                    onFocus={handleTypingStart}
-                    onBlur={handleTypingEnd}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
                     placeholder='Message' />
 
                 <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
