@@ -6,6 +6,7 @@ import { messageState } from '../../recoil/message/atom';
 
 import { Button, Flex, IconButton, Textarea, useToast, VStack } from '@chakra-ui/react';
 import { SmileyIcon } from '../Icon';
+import { toArray } from 'react-emoji-render';
 
 export default function MessageField(props) {
     const { socket } = props;
@@ -53,7 +54,7 @@ export default function MessageField(props) {
                 setInboxes(prev => {
                     // When user click on the DM button in MemberList,
                     // the user will be added to active_dm
-                    const receiverData = active_dm.find(data => data.hasOwnProperty(active_tab));
+                    const receiverData = active_dm && active_dm.find(data => data.hasOwnProperty(active_tab));
                     if (active_dm && receiverData) {
                         const receiverId = receiverData[active_tab];
                         return {
@@ -100,6 +101,18 @@ export default function MessageField(props) {
         });
     }
 
+    function handleOnChange(event) {
+        const arr = toArray(event.target.value);
+        const parsed = arr.reduce((previous, current) => {
+            if (typeof current === "string") {
+                return previous + current;
+            }
+            return previous + current.props.children;
+        }, "");
+
+        setUserInput(parsed);
+    }
+
     function onEmojiClick(event, emojiObject) {
         setUserInput(prev => prev + emojiObject.emoji);
     }
@@ -129,7 +142,7 @@ export default function MessageField(props) {
                 <Textarea
                     type='text'
                     value={userInput}
-                    onChange={(event) => setUserInput(event.target.value)}
+                    onChange={handleOnChange}
                     onFocus={handleTypingStart}
                     onBlur={handleTypingEnd}
                     placeholder='Message' />

@@ -1,5 +1,7 @@
-import { GridItem } from '@chakra-ui/react';
 import React from 'react';
+
+import { GridItem } from '@chakra-ui/react';
+
 import ConversationTabs from './ConversationTabs';
 
 export default function MainSection(props) {

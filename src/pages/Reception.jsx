@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+
+import { userState } from '../recoil/user/atom';
+
 import {
     useToast,
     FormControl,
@@ -22,6 +26,7 @@ export default function Reception(props) {
 function LoginField(props) {
     const { socket } = props;
     const [input, setInput] = useState('');
+    const setUserDetails = useSetRecoilState(userState);
     const toast = useToast();
 
     function handleSendUserName() {
@@ -31,7 +36,7 @@ function LoginField(props) {
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
-            })
+            });
             return;
         }
         socket.emit('user:ready', { userName: input }, (response) => {
@@ -41,10 +46,13 @@ function LoginField(props) {
                     status: 'error',
                     duration: 5000,
                     isClosable: true,
-                })
+                });
                 return;
             }
         });
+        setUserDetails(() => ({
+            name: input,
+        }));
         setInput('');
     }
 

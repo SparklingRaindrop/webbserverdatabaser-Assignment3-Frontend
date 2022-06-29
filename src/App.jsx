@@ -18,7 +18,7 @@ function App() {
 
     const [userDetails, setUserDetails] = useRecoilState(userState);
     // inboxes = {current_room: [], id:[], id:[]}
-    const [inboxes, setInboxes] = useRecoilState(messageState);
+    const setInboxes = useSetRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
     const setMemberList = useSetRecoilState(membersState);
     const setSystemState = useSetRecoilState(systemState);
@@ -35,51 +35,42 @@ function App() {
 
         /// Connection ///
 
-        newSocket.on('reconnect', () => {
-            console.info('reconnected');
-            socket.emit('user:reconnect', userDetails.name);
-        }, (response) => {
-            if (response.status !== 200) {
-                navigate('/');
-                resetUserDetails();
-                resetInboxes();
-            }
-        });
-
         newSocket.on('connect', () => {
-            console.info('Connected');
-            if (userDetails.id !== newSocket.id) {
-                setUserDetails(prev => ({
-                    ...prev,
-                    id: newSocket.id,
-                }));
-            }
-            if (userDetails.id === null) {
-                navigate('/');
-                resetUserDetails();
-                resetInboxes();
-            }
+            console.info('Connected', newSocket.id);
+
+            setUserDetails(prev => {
+                if (prev.name === null) {
+                    toast({
+                        title: 'Please set your nickname again.',
+                        description: 'This occurred due to disconnection.',
+                        status: 'error',
+                        position: 'bottom-left',
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    navigate('/');
+                }
+            });
         });
 
         newSocket.on('connect_error', (error) => {
-            console.log('connect_error', error);
+            console.log(error);
         });
 
-        // Fired when the client is going to be disconnected (but hasn't left its rooms yet).
-        newSocket.on("disconnecting", (reason) => {
-            console.log(newSocket.rooms);
+        newSocket.on("disconnect", (reason) => {
+            console.log(reason);
         });
 
         /// User ///
 
-        /* data = {user, current} */
+        /* data = {user, roomList} */
         newSocket.on('user:initialized', (data) => {
-            setUserDetails(prev => ({
-                ...prev,
+            setUserDetails(() => ({
                 name: data.user.name,
                 id: data.user.id,
                 current_room: data.user.current_room,
                 active_tab: data.user.current_room,
+                active_dm: [],
             }));
             setRoomList(data.roomList);
             navigate('/chat');
@@ -126,6 +117,7 @@ function App() {
 
         newSocket.on('msg:new', (incomingMessage) => {
             const senderId = incomingMessage.sender; // user this user is talking to
+            const senderName = incomingMessage.sender_name;
             const receiverData = incomingMessage.receiver; // this user
 
             // Add sender to active_dm
@@ -134,13 +126,13 @@ function App() {
                     receiverData &&
                     //userDetails.active_dm.length &&
                     prev.active_dm.filter(data => (
-                        data.hasOwnProperty(incomingMessage.sender_name))).length === 0
+                        data.hasOwnProperty(senderName))).length === 0
                 ) {
                     return {
                         ...prev,
                         active_dm: [
                             ...prev.active_dm,
-                            { [incomingMessage.sender_name]: senderId }
+                            { [senderName]: senderId }
                         ],
                     }
                 }
@@ -150,10 +142,19 @@ function App() {
             setInboxes(prev => {
                 // when message obj has a receiver then it's DM.
                 if (receiverData) {
-
                     // First message from this sender
                     if (!prev.hasOwnProperty(senderId)) {
                         const newInbox = [incomingMessage];
+
+                        toast({
+                            title: `New message from ${senderName}`,
+                            status: 'info',
+                            variant: 'left-accent',
+                            position: 'bottom-left',
+                            duration: 5000,
+                            isClosable: true,
+                        });
+
                         return {
                             ...prev,
                             [senderId]: newInbox,
@@ -220,11 +221,12 @@ function App() {
         });
 
         setSocket(newSocket);
+
         return () => {
             newSocket.close();
         };
     }, []);
-    console.log(userDetails.active_dm)
+    console.log(userDetails);
     return (
         <div className="App">
             <ChakraProvider>

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { GridItem } from '@chakra-ui/react';
+
 import MessageField from './MessageField';
 
 export default function UserInputSection(props) {

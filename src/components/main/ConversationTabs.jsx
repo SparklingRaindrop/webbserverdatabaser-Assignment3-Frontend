@@ -1,6 +1,8 @@
-import { GridItem, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import React from 'react'
+import React from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
+
+import { GridItem, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+
 import { userState } from '../../recoil/user/atom';
 import ConversationWindow from './ConversationWindow';
 
@@ -27,8 +29,7 @@ function TabButton(props) {
 
 export default function ConversationTabs(props) {
     const { tabIndex, handleSwitchTab } = props;
-
-    const user = useRecoilValue(userState);
+    const { active_dm, current_room } = useRecoilValue(userState);
 
     return (
         <Tabs
@@ -48,8 +49,8 @@ export default function ConversationTabs(props) {
                     <TabButton
                         label={user.current_room} />
                     {
-                        user.active_dm &&
-                        user.active_dm.map(receiverData => {
+                        active_dm &&
+                        active_dm.map(receiverData => {
                             const receiverName = Object.keys(receiverData)[0];
                             return (
                                 <TabButton
@@ -70,18 +71,18 @@ export default function ConversationTabs(props) {
                     <TabPanel>
                         <ConversationWindow
                             receiverId={undefined}
-                            receiverName={user.current_room} />
+                            receiverName={current_room} />
                     </TabPanel>
                     {
-                        user.active_dm &&
-                        user.active_dm.map(receiverData => {
+                        active_dm &&
+                        active_dm.map(receiverData => {
                             // receiverData = { name: id }
                             const receiverName = Object.keys(receiverData)[0];
                             return (
                                 <TabPanel key={receiverName}>
                                     <ConversationWindow
                                         receiverName={receiverName}
-                                        receiverId={user.active_dm.find(receiverData =>
+                                        receiverId={active_dm.find(receiverData =>
                                             receiverData.hasOwnProperty(receiverName))[receiverName]
                                         } />
                                 </TabPanel>

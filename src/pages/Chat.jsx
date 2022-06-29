@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Grid } from '@chakra-ui/react';
 import { useRecoilValue } from 'recoil';
+
 import { messageState } from '../recoil/message/atom';
 import { systemState } from '../recoil/system/atom';
+
+import { Grid } from '@chakra-ui/react';
+
 import Sidebar from '../components/sidebar/Sidebar';
 import MainSection from '../components/main/MainSection';
 import UserInputSection from '../components/bottom/UserInputSection';

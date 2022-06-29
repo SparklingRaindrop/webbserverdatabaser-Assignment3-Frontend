@@ -1,14 +1,15 @@
+import React from 'react';
+
 import {
     AccordionButton,
     AccordionItem,
     AccordionPanel,
     Box,
-    Flex,
     Heading,
     IconButton,
 } from '@chakra-ui/react';
 import { PlusSquareIcon, MinusIcon } from '@chakra-ui/icons'
-import React from 'react';
+
 import MemberList from './MemberList';
 
 export default function ActiveUserList(props) {

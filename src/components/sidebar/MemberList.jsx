@@ -1,4 +1,9 @@
 import React from 'react';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+
+import { userState } from '../../recoil/user/atom';
+import { messageState } from '../../recoil/message/atom';
+
 import {
     HStack,
     IconButton,
@@ -6,9 +11,6 @@ import {
     UnorderedList,
 } from '@chakra-ui/react';
 import { ChatIcon } from '@chakra-ui/icons'
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { userState } from '../../recoil/user/atom';
-import { messageState } from '../../recoil/message/atom';
 
 export default function MemberList(props) {
     const { members, handleSwitchTab } = props;

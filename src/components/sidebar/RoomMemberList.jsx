@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 
 import { userState } from '../../recoil/user/atom';
 import { messageState } from '../../recoil/message/atom';
