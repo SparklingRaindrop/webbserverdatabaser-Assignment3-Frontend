@@ -8,7 +8,7 @@ import { userState } from '../../recoil/user/atom';
 import { VStack, Flex } from '@chakra-ui/react';
 
 import SpeechBubble from './SpeechBubble';
-import TypingNotification from './TypingNotification';
+import TypingIndicator from './TypingIndicator';
 
 export default function ConversationWindow(props) {
     const { receiverId } = props;
@@ -18,7 +18,7 @@ export default function ConversationWindow(props) {
     const { active_tab } = useRecoilValue(userState);
 
     const targetInbox = receiverId ? inboxes[receiverId] : inboxes.current_room;
-
+    console.log(typingNotification);
     return (
         <VStack>
             <Flex
@@ -41,7 +41,7 @@ export default function ConversationWindow(props) {
                     typingNotification &&
                         (active_tab === typingNotification.typingBy.name ||
                             active_tab === typingNotification.room_name) ?
-                        <TypingNotification name={typingNotification.typingBy.name} /> :
+                        <TypingIndicator name={typingNotification.typingBy.name} /> :
                         null
                 }
             </Flex>

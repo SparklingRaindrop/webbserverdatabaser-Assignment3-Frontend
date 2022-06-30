@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Flex } from '@chakra-ui/react';
 
 
-export default function TypingNotification(props) {
+export default function TypingIndicator(props) {
     const { name } = props;
     return (
         <Flex direction='row' alignItems='center' h='3rem'>

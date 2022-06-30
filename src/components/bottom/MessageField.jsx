@@ -20,10 +20,11 @@ export default function MessageField(props) {
     const toast = useToast();
 
     useEffect(() => {
-        const typingTimer = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
+            console.log('here1');
             handleTypingEnd();
         }, 2000);
-        return () => clearTimeout(typingTimer)
+        return () => clearTimeout(timeoutId);
     }, [userInput])
 
     function handleSubmitMessage() {
@@ -87,6 +88,7 @@ export default function MessageField(props) {
     }
 
     function handleTypingStart() {
+
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
@@ -99,6 +101,7 @@ export default function MessageField(props) {
     }
 
     function handleTypingEnd() {
+        console.log('here');
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
@@ -126,16 +129,13 @@ export default function MessageField(props) {
         setUserInput(prev => prev + emoji);
     }
 
-    function handleKeyDown() {
+    function handleKeyDown(event) {
         handleTypingStart();
-    }
-
-    function handleKeyUp(event) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSubmitMessage();
         }
-    };
+    }
 
     return (
         <VStack
@@ -160,8 +160,8 @@ export default function MessageField(props) {
                     type='text'
                     value={userInput}
                     onChange={handleOnChange}
+                    onFocus={handleTypingStart}
                     onKeyDown={handleKeyDown}
-                    onKeyUp={handleKeyUp}
                     placeholder='Message' />
 
                 <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>
