@@ -36,7 +36,7 @@ export default function ConversationTabs(props) {
             // when current tab was the user that left the chat
             // So need to move tab and set active tab value to the new tab
             // tabIndex is +1 for activeDM because index 0 is reserved for room chat 
-            if (goingAwayUserIndex > -1 && Object.keys(active_dm[tabIndex - 1])[0] === active_tab) {
+            if (goingAwayUserIndex > -1 && active_dm[tabIndex - 1] && Object.keys(active_dm[tabIndex - 1])[0] === active_tab) {
                 handleSwitchTab(prev => {
                     return prev - 1;
                 });
