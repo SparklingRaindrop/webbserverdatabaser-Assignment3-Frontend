@@ -66,7 +66,6 @@ export default function ConversationTabs(props) {
             ...prev,
             active_tab: tabList[index]
         }));
-        console.log(tabList, tabList[index]);
     }
 
     return (
@@ -108,8 +107,8 @@ export default function ConversationTabs(props) {
                 <TabPanels>
                     <TabPanel>
                         <ConversationWindow
-                            receiverId={undefined}
-                            receiverName={current_room} />
+                            tabIndex={tabIndex}
+                            receiverId={undefined} />
                     </TabPanel>
                     {
                         active_dm &&
@@ -119,7 +118,7 @@ export default function ConversationTabs(props) {
                             return (
                                 <TabPanel key={receiverName}>
                                     <ConversationWindow
-                                        receiverName={receiverName}
+                                        tabIndex={tabIndex}
                                         receiverId={active_dm.find(receiverData =>
                                             receiverData.hasOwnProperty(receiverName))[receiverName]
                                         } />

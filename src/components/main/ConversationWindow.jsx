@@ -11,15 +11,14 @@ import SpeechBubble from './SpeechBubble';
 import TypingIndicator from './TypingIndicator';
 
 export default function ConversationWindow(props) {
-    const { receiverId } = props;
+    const { receiverId, tabIndex } = props;
 
     const inboxes = useRecoilValue(messageState);
     const { typingNotification } = useRecoilValue(systemState);
     const { active_tab } = useRecoilValue(userState);
 
     const targetInbox = receiverId ? inboxes[receiverId] : inboxes.current_room;
-    //typingNotification && console.log(typingNotification);
-    //typingNotification && console.log(active_tab, typingNotification.room_name, typingNotification.typingBy.name);
+
     return (
         <VStack>
             <Flex
@@ -41,8 +40,10 @@ export default function ConversationWindow(props) {
                 {
                     typingNotification &&
                         ((typingNotification.receiver &&
+                            tabIndex > 0 &&
                             active_tab === typingNotification.typingBy.name) ||
                             (typingNotification.room_name &&
+                                tabIndex === 0 &&
                                 active_tab === typingNotification.room_name)) ?
                         <TypingIndicator name={typingNotification.typingBy.name} /> :
                         null
