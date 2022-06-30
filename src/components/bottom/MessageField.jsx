@@ -20,11 +20,11 @@ export default function MessageField(props) {
     const toast = useToast();
 
     useEffect(() => {
-        if (userInput === '') return;
-        handleTypingStart();
         const timeoutId = setTimeout(() => {
             handleTypingEnd();
         }, 2000);
+        if (userInput === '') return;
+        handleTypingStart();
         return () => clearTimeout(timeoutId);
     }, [userInput])
 
