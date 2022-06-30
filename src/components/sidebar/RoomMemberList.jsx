@@ -151,10 +151,6 @@ export default function RoomMemberList(props) {
                     current_room: name,
                     active_tab: name,
                 }));
-                setInboxes(prev => ({
-                    ...prev,
-                    current_room: []
-                }));
             }
         });
     }

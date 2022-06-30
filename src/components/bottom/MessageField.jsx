@@ -20,6 +20,8 @@ export default function MessageField(props) {
     const toast = useToast();
 
     useEffect(() => {
+        if (userInput === '') return;
+        handleTypingStart();
         const timeoutId = setTimeout(() => {
             handleTypingEnd();
         }, 2000);
@@ -159,7 +161,6 @@ export default function MessageField(props) {
                     type='text'
                     value={userInput}
                     onChange={handleOnChange}
-                    onFocus={handleTypingStart}
                     onKeyDown={handleKeyDown}
                     onBlur={handleTypingEnd}
                     placeholder='Message' />

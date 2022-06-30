@@ -18,12 +18,10 @@ function App() {
 
     const setUserDetails = useSetRecoilState(userState);
     // inboxes = {current_room: [], id:[], id:[]}
-    const setInboxes = useSetRecoilState(messageState);
+    const [inboxes, setInboxes] = useRecoilState(messageState);
     const setRoomList = useSetRecoilState(roomState);
     const setMemberList = useSetRecoilState(membersState);
     const setSystemState = useSetRecoilState(systemState);
-    const resetUserDetails = useResetRecoilState(userState);
-    const resetInboxes = useResetRecoilState(messageState);
 
     const navigate = useNavigate();
     const toast = useToast();
@@ -49,7 +47,16 @@ function App() {
 
         /// User ///
 
-        /* data = {user, roomList} */
+        /* 
+            data = {
+                user,
+                roomList,
+                message: {
+                    room_name: 'current_room',
+                    messageList: messages,
+                },
+        }
+        */
         newSocket.on('user:initialized', (data) => {
             setUserDetails(() => ({
                 name: data.user.name,
@@ -64,6 +71,13 @@ function App() {
 
         newSocket.on('user:new_client', (data) => {
             setMemberList(data.users);
+        });
+
+        newSocket.on('user:new_room_entered', (data) => {
+            setInboxes(prev => ({
+                ...prev,
+                current_room: data.message.messageList,
+            }));
         });
 
         /* 
