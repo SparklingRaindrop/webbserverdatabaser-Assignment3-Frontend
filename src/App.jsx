@@ -86,9 +86,12 @@ function App() {
             });
         });
 
+        /* 
+            data = {user}
+        */
         newSocket.on('user:left_chat_room', (data) => {
             toast({
-                title: `${data.user.name} has left the chat.`,
+                title: `${data.user.name} has left ${data.user.current_room}.`,
                 status: 'info',
                 variant: 'left-accent',
                 position: 'bottom-left',

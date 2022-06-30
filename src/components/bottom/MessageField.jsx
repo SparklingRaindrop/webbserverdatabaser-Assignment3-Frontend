@@ -87,7 +87,6 @@ export default function MessageField(props) {
     }
 
     function handleTypingStart() {
-        console.log(active_tab, current_room)
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };

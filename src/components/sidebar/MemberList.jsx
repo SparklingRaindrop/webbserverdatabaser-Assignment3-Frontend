@@ -56,7 +56,7 @@ export default function MemberList(props) {
                                 <span>
                                     {name} {user.id !== id ? '' : '(You)'}
                                 </span>
-                                {user.id !== id ?
+                                {user.id !== id && !user.active_dm.some(member => Object.values(member).includes(id)) ?
                                     <IconButton
                                         colorScheme='green'
                                         variant='ghost'

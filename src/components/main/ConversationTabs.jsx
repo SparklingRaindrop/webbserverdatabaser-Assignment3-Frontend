@@ -1,10 +1,11 @@
-import React from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import React, { useEffect } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 import { GridItem, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 
 import { userState } from '../../recoil/user/atom';
 import ConversationWindow from './ConversationWindow';
+import { membersState } from '../../recoil/members/atom';
 
 function TabButton(props) {
     const { label } = props;
@@ -28,7 +29,27 @@ function TabButton(props) {
 
 export default function ConversationTabs(props) {
     const { tabIndex, handleSwitchTab } = props;
-    const { active_dm, current_room } = useRecoilValue(userState);
+    const [{ active_dm, current_room }, setUserDetails] = useRecoilState(userState);
+    const memberList = useRecoilValue(membersState);
+
+    useEffect(() => {
+        const goingAwayUserIndex = active_dm.findIndex(data => {
+            const userId = Object.values(data)[0];
+            return memberList.some(member => member.id !== userId)
+        });
+        const newActiveDM = active_dm.filter(data => {
+            const userId = Object.values(data)[0];
+            return memberList.some(member => member.id === userId)
+        });
+        if (goingAwayUserIndex > -1) {
+            handleSwitchTab(prev => prev - 1);
+        }
+
+        setUserDetails(prev => ({
+            ...prev,
+            active_dm: newActiveDM,
+        }));
+    }, [memberList]);
 
     return (
         <Tabs
