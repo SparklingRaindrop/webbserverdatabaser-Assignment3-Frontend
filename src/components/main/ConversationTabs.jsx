@@ -29,7 +29,7 @@ function TabButton(props) {
 
 export default function ConversationTabs(props) {
     const { tabIndex, handleSwitchTab } = props;
-    const [{ active_dm, current_room }, setUserDetails] = useRecoilState(userState);
+    const [{ active_dm, current_room, active_tab }, setUserDetails] = useRecoilState(userState);
     const memberList = useRecoilValue(membersState);
 
     useEffect(() => {
@@ -41,14 +41,30 @@ export default function ConversationTabs(props) {
             const userId = Object.values(data)[0];
             return memberList.some(member => member.id === userId)
         });
-        if (goingAwayUserIndex > -1) {
-            handleSwitchTab(prev => prev - 1);
-        }
 
-        setUserDetails(prev => ({
-            ...prev,
-            active_dm: newActiveDM,
-        }));
+        setUserDetails(prev => {
+            // when current tab was the user that left the chat
+            // So need to move tab and set active tab value to the new tab
+            // tabIndex is +1 for activeDM because index 0 is reserved for room chat 
+            if (goingAwayUserIndex > -1 && Object.keys(active_dm[tabIndex - 1])[0] === active_tab) {
+                handleSwitchTab(prev => {
+                    return prev - 1;
+                });
+
+                return {
+                    ...prev,
+                    active_dm: newActiveDM,
+                    active_tab: newActiveDM.length > 0 ?
+                        Object.keys(active_dm[tabIndex - 1])[0] :
+                        prev.current_room
+                }
+            }
+
+            return {
+                ...prev,
+                active_dm: newActiveDM,
+            }
+        });
     }, [memberList]);
 
     return (
