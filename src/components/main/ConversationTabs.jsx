@@ -9,19 +9,9 @@ import { membersState } from '../../recoil/members/atom';
 
 function TabButton(props) {
     const { label } = props;
-    const setUser = useSetRecoilState(userState);
-
-    function handleOnClick(tabName) {
-        setUser(prev => ({
-            ...prev,
-            active_tab: tabName
-        }));
-    }
 
     return (
-        <Tab
-            _selected={{ color: 'green.900', bg: 'green.300' }}
-            onClick={() => handleOnClick(label)}>
+        <Tab _selected={{ color: 'green.900', bg: 'green.300' }}>
             {label}
         </Tab>
     );
@@ -67,6 +57,18 @@ export default function ConversationTabs(props) {
         });
     }, [memberList]);
 
+    function handleOnchange(index) {
+        const tabList = active_dm.length > 0 ? active_dm.map(receiverData => Object.keys(receiverData)[0]) : [];
+        tabList.unshift(current_room);
+
+        handleSwitchTab(index);
+        setUserDetails(prev => ({
+            ...prev,
+            active_tab: tabList[index]
+        }));
+        console.log(tabList, tabList[index]);
+    }
+
     return (
         <Tabs
             h='100%'
@@ -77,7 +79,7 @@ export default function ConversationTabs(props) {
             size='md'
             display='grid'
             colorScheme='green'
-            onChange={(index) => handleSwitchTab(index)}
+            onChange={handleOnchange}
             index={tabIndex}>
             <GridItem>
                 <TabList

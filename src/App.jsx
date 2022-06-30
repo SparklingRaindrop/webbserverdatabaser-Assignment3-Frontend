@@ -111,7 +111,7 @@ function App() {
             setSystemState(prev => ({
                 ...prev,
                 typingNotification: data,
-            }))
+            }));
         });
 
         newSocket.on('user:typing_stopped', () => {
