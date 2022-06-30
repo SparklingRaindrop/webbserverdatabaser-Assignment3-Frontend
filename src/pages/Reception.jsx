@@ -32,7 +32,7 @@ function LoginField(props) {
     function handleSendUserName() {
         if (input === '') {
             toast({
-                title: 'Enter your chat name',
+                title: 'Enter your nickname',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,

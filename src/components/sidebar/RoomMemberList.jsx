@@ -95,7 +95,6 @@ export default function RoomMemberList(props) {
                 toast({
                     title: 'Could not delete the room.',
                     description: response.message,
-                    position: 'bottom-left',
                     status: 'error',
                     duration: 5000,
                     isClosable: true,
@@ -119,8 +118,7 @@ export default function RoomMemberList(props) {
         });
     }
 
-    function handleEnterRoom(event) {
-        event.stopPropagation();
+    function handleEnterRoom() {
         socket.emit('user:join_room', roomDetails, (response) => {
             if (response.status !== 200) {
                 toast({
@@ -140,14 +138,18 @@ export default function RoomMemberList(props) {
                 }
                 toast({
                     title: `You are now in ${roomDetails.name}`,
+                    position: 'bottom-left',
                     status: 'success',
                     duration: 5000,
                     isClosable: true,
                 });
+                // Room is always index 0
+                handleSwitchTab(0);
+
                 updateUserState(prev => ({
                     ...prev,
-                    current_room: roomDetails.name,
-                    active_tab: roomDetails.name, // TODO
+                    current_room: name,
+                    active_tab: name,
                 }));
                 setInboxes(prev => ({
                     ...prev,

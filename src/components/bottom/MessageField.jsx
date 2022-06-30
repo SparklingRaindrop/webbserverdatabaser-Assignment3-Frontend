@@ -87,7 +87,7 @@ export default function MessageField(props) {
     }
 
     function handleTypingStart() {
-
+        console.log(active_tab, current_room)
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };
@@ -137,6 +137,8 @@ export default function MessageField(props) {
 
     return (
         <VStack
+            w={['100%', '70%']}
+            m='auto'
             justifyItems='end'
             position='relative'>
             {!isHidden && <EmojiPicker
@@ -146,11 +148,12 @@ export default function MessageField(props) {
 
             <IconButton
                 className='emojiPickerButton'
+                alignSelf='flex-start'
                 icon={<SmileyIcon />}
                 onClick={() => setIsHidden(prev => !prev)} />
 
             <Flex
-                width={['100%', '70%']}
+                width={'100%'}
                 direction='row'
                 alignItems='flex-end'
                 gap='1rem'>
@@ -160,6 +163,7 @@ export default function MessageField(props) {
                     onChange={handleOnChange}
                     onFocus={handleTypingStart}
                     onKeyDown={handleKeyDown}
+                    onBlur={handleTypingEnd}
                     placeholder='Message' />
 
                 <Button colorScheme='green' variant='solid' onClick={handleSubmitMessage}>

@@ -9,7 +9,7 @@ export default function UserInputSection(props) {
     return (
         <GridItem
             w='100%'
-            p='2rem 0'
+            p='1rem 0 2rem'
             gridRow='4 / span 1'
             gridColumn={['2 / span 2', '2 / span 3']}
             borderTop='1px'
