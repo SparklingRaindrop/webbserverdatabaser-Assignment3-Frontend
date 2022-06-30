@@ -21,7 +21,6 @@ export default function MessageField(props) {
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            console.log('here1');
             handleTypingEnd();
         }, 2000);
         return () => clearTimeout(timeoutId);
@@ -101,7 +100,6 @@ export default function MessageField(props) {
     }
 
     function handleTypingEnd() {
-        console.log('here');
         const target = active_tab !== current_room ?
             { receiver: active_dm.find(data => data.hasOwnProperty(active_tab))[active_tab] } :
             { room_name: current_room };

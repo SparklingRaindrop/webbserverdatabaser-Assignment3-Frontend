@@ -18,7 +18,7 @@ export default function ConversationWindow(props) {
     const { active_tab } = useRecoilValue(userState);
 
     const targetInbox = receiverId ? inboxes[receiverId] : inboxes.current_room;
-    console.log(typingNotification);
+
     return (
         <VStack>
             <Flex
